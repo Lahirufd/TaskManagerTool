@@ -1,0 +1,102 @@
+package taskmanagertool;
+
+public class TaskManager {
+    private FolderLinkedList folderList;
+    private Folder currentFolder;
+
+    public TaskManager() {
+        folderList = new FolderLinkedList();
+        currentFolder = null;
+    }
+
+    // Folder-related methods
+    public void addFolder(String folderName) {
+        Folder folder = new Folder(folderName);
+        folderList.addFolder(folder);
+        System.out.println("Folder '" + folderName + "' created.");
+    }
+
+    public void editFolderName(String currentName, String newName) {
+        Folder folder = folderList.searchFolder(currentName);
+        if (folder != null) {
+            folder = new Folder(newName);  // Replace with a new folder with the new name
+            System.out.println("Folder name updated to '" + newName + "'.");
+        } else {
+            System.out.println("Folder not found.");
+        }
+    }
+    
+    public void deleteFolder(String folderName) {
+        folderList.deleteFolder(folderName);
+        System.out.println("Folder '" + folderName + "' deleted.");
+    }
+
+    public void searchFolder(String folderName) {
+        Folder folder = folderList.searchFolder(folderName);
+        if (folder != null) {
+            System.out.println("Folder '" + folderName + "' found.");
+        } else {
+            System.out.println("Folder not found.");
+        }
+    }
+
+    public void selectFolder(String folderName) {
+        Folder folder = folderList.searchFolder(folderName);
+        if (folder != null) {
+            currentFolder = folder;
+            System.out.println("Folder '" + folderName + "' selected.");
+        } else {
+            System.out.println("Folder not found.");
+        }
+    }
+
+    public void viewFolders() {
+        System.out.println("Available folders:");
+        folderList.viewFolders();
+    }
+
+    // Task-related methods
+    public void addTaskToCurrentFolder(String taskName, String category, String priority) {
+        if (currentFolder != null) {
+            Task task = new Task(taskName, category, priority);
+            currentFolder.getTaskList().add(task);
+            System.out.println("Task '" + taskName + "' added to folder '" + currentFolder.getName() + "'.");
+        } else {
+            System.out.println("No folder selected.");
+        }
+    }
+
+    public void viewCurrentFolderTasks() {
+        if (currentFolder != null) {
+            System.out.println("Tasks in folder '" + currentFolder.getName() + "':");
+            currentFolder.getTaskList().viewAll();
+        } else {
+            System.out.println("No folder selected.");
+        }
+    }
+
+    public void markTaskAsComplete(String taskName) {
+        if (currentFolder != null) {
+            Task task = currentFolder.getTaskList().search(taskName);
+            if (task != null) {
+                task.setCompleted(true);
+                System.out.println("Task '" + taskName + "' marked as complete.");
+            } else {
+                System.out.println("Task not found.");
+            }
+        } else {
+            System.out.println("No folder selected.");
+        }
+    }
+
+    public void deleteTask(String taskName) {
+        if (currentFolder != null) {
+            currentFolder.getTaskList().delete(taskName);
+            System.out.println("Task '" + taskName + "' deleted.");
+        } else {
+            System.out.println("No folder selected.");
+        }
+    }
+}
+
+
