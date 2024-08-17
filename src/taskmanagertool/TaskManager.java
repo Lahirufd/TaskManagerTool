@@ -19,10 +19,10 @@ public class TaskManager {
     public void editFolderName(String currentName, String newName) {
         Folder folder = folderList.searchFolder(currentName);
         if (folder != null) {
-            folder = new Folder(newName);  // Replace with a new folder with the new name
-            System.out.println("Folder name updated to '" + newName + "'.");
+            folder.setName(newName);
+            System.out.println("Folder name changed from '" + currentName + "' to '" + newName + "'.");
         } else {
-            System.out.println("Folder not found.");
+            System.out.println("Folder '" + currentName + "' not found.");
         }
     }
     

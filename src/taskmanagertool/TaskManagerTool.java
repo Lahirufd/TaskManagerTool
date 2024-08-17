@@ -16,6 +16,7 @@ public class TaskManagerTool {
             System.out.println("5. Search Folders");
             System.out.println("6. Select Folder");
             System.out.println("7. Exit");
+            System.out.print("Please choose an option (1-7): ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();  // Consume newline
@@ -53,8 +54,13 @@ public class TaskManagerTool {
                     manageTasksInFolder(scanner, taskManager);
                     break;
                 case 7:
-                    System.exit(0);
+                    System.out.println("Exiting the tool. Goodbye!");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
             }
+            System.out.println(); //For blank line between operations
         }
     }
 
