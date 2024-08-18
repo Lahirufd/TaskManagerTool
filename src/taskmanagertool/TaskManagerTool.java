@@ -20,6 +20,8 @@ public class TaskManagerTool {
 
             int choice = scanner.nextInt();
             scanner.nextLine();  // Consume newline
+            
+            System.out.println();
 
             switch (choice) {
                 case 1:
@@ -50,8 +52,11 @@ public class TaskManagerTool {
                 case 6:
                     System.out.print("Enter folder name to select: ");
                     String selectFolderName = scanner.nextLine();
-                    taskManager.selectFolder(selectFolderName);
-                    manageTasksInFolder(scanner, taskManager);
+                    if (taskManager.selectFolder(selectFolderName)) {
+                        manageTasksInFolder(scanner, taskManager);
+                    } else {
+                        System.out.println("Folder not found.");
+                    }
                     break;
                 case 7:
                     System.out.println("Exiting the tool. Goodbye!");
@@ -72,9 +77,12 @@ public class TaskManagerTool {
             System.out.println("3. Mark Task as Complete");
             System.out.println("4. Delete Task");
             System.out.println("5. Back to Folder Management");
+            System.out.print("Please choose an option (1-5): ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();  // Consume newline
+            
+            System.out.println();
 
             switch (choice) {
                 case 1:
@@ -101,6 +109,8 @@ public class TaskManagerTool {
                     break;
                 case 5:
                     return;  // Exit task management and go back to folder management
+                default:
+                    System.out.println("Invalid choice. Please try again.");
             }
         }
     }
