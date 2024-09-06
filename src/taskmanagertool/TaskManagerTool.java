@@ -16,9 +16,12 @@ public class TaskManagerTool {
             System.out.println("5. Search Folders");
             System.out.println("6. Select Folder");
             System.out.println("7. Exit");
+            System.out.print("Please choose an option (1-7): ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();  // Consume newline
+            
+            System.out.println();
 
             switch (choice) {
                 case 1:
@@ -49,12 +52,20 @@ public class TaskManagerTool {
                 case 6:
                     System.out.print("Enter folder name to select: ");
                     String selectFolderName = scanner.nextLine();
-                    taskManager.selectFolder(selectFolderName);
-                    manageTasksInFolder(scanner, taskManager);
+                    if (taskManager.selectFolder(selectFolderName)) {
+                        manageTasksInFolder(scanner, taskManager);
+                    } else {
+                        System.out.println("Folder not found.");
+                    }
                     break;
                 case 7:
-                    System.exit(0);
+                    System.out.println("Exiting the tool. Goodbye!");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
             }
+            System.out.println(); //For blank line between operations
         }
     }
 
@@ -66,9 +77,12 @@ public class TaskManagerTool {
             System.out.println("3. Mark Task as Complete");
             System.out.println("4. Delete Task");
             System.out.println("5. Back to Folder Management");
+            System.out.print("Please choose an option (1-5): ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();  // Consume newline
+            
+            System.out.println();
 
             switch (choice) {
                 case 1:
@@ -95,6 +109,8 @@ public class TaskManagerTool {
                     break;
                 case 5:
                     return;  // Exit task management and go back to folder management
+                default:
+                    System.out.println("Invalid choice. Please try again.");
             }
         }
     }

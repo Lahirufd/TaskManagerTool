@@ -19,10 +19,10 @@ public class TaskManager {
     public void editFolderName(String currentName, String newName) {
         Folder folder = folderList.searchFolder(currentName);
         if (folder != null) {
-            folder = new Folder(newName);  // Replace with a new folder with the new name
-            System.out.println("Folder name updated to '" + newName + "'.");
+            folder.setName(newName);
+            System.out.println("Folder name changed from '" + currentName + "' to '" + newName + "'.");
         } else {
-            System.out.println("Folder not found.");
+            System.out.println("Folder '" + currentName + "' not found.");
         }
     }
     
@@ -40,13 +40,14 @@ public class TaskManager {
         }
     }
 
-    public void selectFolder(String folderName) {
+    public boolean selectFolder(String folderName) {
         Folder folder = folderList.searchFolder(folderName);
         if (folder != null) {
             currentFolder = folder;
             System.out.println("Folder '" + folderName + "' selected.");
+            return true;
         } else {
-            System.out.println("Folder not found.");
+            return false;
         }
     }
 
@@ -67,11 +68,27 @@ public class TaskManager {
     }
 
     public void viewCurrentFolderTasks() {
-        if (currentFolder != null) {
-            System.out.println("Tasks in folder '" + currentFolder.getName() + "':");
-            currentFolder.getTaskList().viewAll();
-        } else {
+        if (currentFolder == null) {
             System.out.println("No folder selected.");
+            return;
+        }
+
+        System.out.println("Tasks in folder '" + currentFolder.getName() + "':");
+        System.out.println("-----------------------------");
+        TaskNode current = currentFolder.getTaskList().getHead();
+
+        if (current == null) {
+            System.out.println("No tasks found.");
+            return;
+        }
+
+        while (current != null) {
+            Task task = current.getTask();
+            System.out.println("Task Name: " + task.getName());
+            System.out.println("Category: " + task.getCategory());
+            System.out.println("Priority: " + task.getPriority());
+            System.out.println("-----------------------------"); // Separator between tasks
+            current = current.getNext();
         }
     }
 
