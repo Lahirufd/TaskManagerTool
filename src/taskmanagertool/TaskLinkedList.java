@@ -6,6 +6,10 @@ class TaskLinkedList {
     public TaskLinkedList() {
         head = null;
     }
+    
+    public TaskNode getHead() {
+        return head;
+    }
 
     public void add(Task task) {
         TaskNode newNode = new TaskNode(task);
