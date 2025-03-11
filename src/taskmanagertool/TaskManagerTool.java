@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 public class TaskManagerTool {
     public static void main(String[] args) {
+        DatabaseConnection.initializeDatabase(); // Initialize the database
         Scanner scanner = new Scanner(System.in);
         TaskManager taskManager = new TaskManager();
 
