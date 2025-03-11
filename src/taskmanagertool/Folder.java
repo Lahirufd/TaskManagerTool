@@ -1,12 +1,21 @@
 package taskmanagertool;
 
-class Folder {
+public class Folder {
+    private int id;
     private String name;
     private TaskLinkedList taskList;
 
     public Folder(String name) {
         this.name = name;
         this.taskList = new TaskLinkedList();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {

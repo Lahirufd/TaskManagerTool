@@ -1,6 +1,7 @@
 package taskmanagertool;
 
-class Task {
+public class Task {
+    private int id;
     private String name;
     private String category;
     private String priority;
@@ -13,6 +14,14 @@ class Task {
         this.priority = priority;
         this.isCompleted = false;
         this.completed = "No"; // Initialize as "No"
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
