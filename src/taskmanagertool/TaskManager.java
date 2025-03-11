@@ -87,6 +87,7 @@ public class TaskManager {
             System.out.println("Task Name: " + task.getName());
             System.out.println("Category: " + task.getCategory());
             System.out.println("Priority: " + task.getPriority());
+            System.out.println("Completed: " + task.getCompleted()); // Display completed status
             System.out.println("-----------------------------"); // Separator between tasks
             current = current.getNext();
         }
@@ -96,13 +97,110 @@ public class TaskManager {
         if (currentFolder != null) {
             Task task = currentFolder.getTaskList().search(taskName);
             if (task != null) {
-                task.setCompleted(true);
-                System.out.println("Task '" + taskName + "' marked as complete.");
+                if (task.isCompleted()) {
+                    System.out.println("Task '" + taskName + "' is already marked as complete.");
+                } else {
+                    task.setCompleted(true); // Mark as complete
+                    System.out.println("Task '" + taskName + "' marked as complete.");
+                }
             } else {
                 System.out.println("Task not found.");
             }
         } else {
             System.out.println("No folder selected.");
+        }
+    }
+
+    public void markTaskAsIncomplete(String taskName) {
+        if (currentFolder != null) {
+            Task task = currentFolder.getTaskList().search(taskName);
+            if (task != null) {
+                if (!task.isCompleted()) {
+                    System.out.println("Task '" + taskName + "' is already marked as incomplete.");
+                } else {
+                    task.setCompleted(false); // Mark as incomplete
+                    System.out.println("Task '" + taskName + "' marked as incomplete.");
+                }
+            } else {
+                System.out.println("Task not found.");
+            }
+        } else {
+            System.out.println("No folder selected.");
+        }
+    }
+
+    public void editTask(String taskName, int fieldChoice, String newValue) {
+        if (currentFolder != null) {
+            Task task = currentFolder.getTaskList().search(taskName);
+            if (task != null) {
+                switch (fieldChoice) {
+                    case 1:
+                        task.setName(newValue);
+                        System.out.println("Task name updated to: " + newValue);
+                        break;
+                    case 2:
+                        task.setCategory(newValue);
+                        System.out.println("Task category updated to: " + newValue);
+                        break;
+                    case 3:
+                        task.setPriority(newValue);
+                        System.out.println("Task priority updated to: " + newValue);
+                        break;
+                    default:
+                        System.out.println("Invalid field choice. No changes made.");
+                }
+            } else {
+                System.out.println("Task not found.");
+            }
+        } else {
+            System.out.println("No folder selected.");
+        }
+    }
+
+    public void searchTask(String taskName) {
+        if (currentFolder != null) {
+            Task task = currentFolder.getTaskList().search(taskName);
+            if (task != null) {
+                System.out.println("Task found:");
+                System.out.println("Task Name: " + task.getName());
+                System.out.println("Category: " + task.getCategory());
+                System.out.println("Priority: " + task.getPriority());
+                System.out.println("Completed: " + task.getCompleted());
+            } else {
+                System.out.println("Task '" + taskName + "' not found.");
+            }
+        } else {
+            System.out.println("No folder selected.");
+        }
+    }
+
+    public void filterTasksByCompletion(boolean isComplete) {
+        if (currentFolder == null) {
+            System.out.println("No folder selected.");
+            return;
+        }
+
+        TaskNode current = currentFolder.getTaskList().getHead();
+        boolean found = false;
+
+        System.out.println("Tasks that are " + (isComplete ? "complete:" : "incomplete:"));
+        System.out.println("-----------------------------");
+
+        while (current != null) {
+            Task task = current.getTask();
+            if (task.isCompleted() == isComplete) {
+                System.out.println("Task Name: " + task.getName());
+                System.out.println("Category: " + task.getCategory());
+                System.out.println("Priority: " + task.getPriority());
+                System.out.println("Completed: " + task.getCompleted());
+                System.out.println("-----------------------------");
+                found = true;
+            }
+            current = current.getNext();
+        }
+
+        if (!found) {
+            System.out.println("No tasks found.");
         }
     }
 
