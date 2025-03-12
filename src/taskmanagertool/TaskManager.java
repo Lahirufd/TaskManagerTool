@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TaskManager {
     private Folder currentFolder;
@@ -13,64 +15,56 @@ public class TaskManager {
     }
 
     // Folder-related methods
-    public void addFolder(String folderName) {
+    public boolean addFolder(String folderName) {
         String sql = "INSERT INTO folders(name) VALUES(?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, folderName);
             pstmt.executeUpdate();
-            System.out.println("Folder '" + folderName + "' created.");
+            return true; // Folder created successfully
         } catch (SQLException e) {
-            System.out.println("Error creating folder: " + e.getMessage());
+            System.err.println("Error creating folder: " + e.getMessage());
+            return false; // Folder creation failed
         }
     }
 
-    public void editFolderName(String currentName, String newName) {
+    public boolean editFolderName(String currentName, String newName) {
         String sql = "UPDATE folders SET name = ? WHERE name = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, newName);
             pstmt.setString(2, currentName);
             int rowsUpdated = pstmt.executeUpdate();
-            if (rowsUpdated > 0) {
-                System.out.println("Folder name changed from '" + currentName + "' to '" + newName + "'.");
-            } else {
-                System.out.println("Folder '" + currentName + "' not found.");
-            }
+            return rowsUpdated > 0; // Return true if the folder was updated
         } catch (SQLException e) {
-            System.out.println("Error editing folder name: " + e.getMessage());
+            System.err.println("Error editing folder name: " + e.getMessage());
+            return false; // Folder update failed
         }
     }
 
-    public void deleteFolder(String folderName) {
+    public boolean deleteFolder(String folderName) {
         String sql = "DELETE FROM folders WHERE name = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, folderName);
             int rowsDeleted = pstmt.executeUpdate();
-            if (rowsDeleted > 0) {
-                System.out.println("Folder '" + folderName + "' deleted.");
-            } else {
-                System.out.println("Folder '" + folderName + "' not found.");
-            }
+            return rowsDeleted > 0; // Return true if the folder was deleted
         } catch (SQLException e) {
-            System.out.println("Error deleting folder: " + e.getMessage());
+            System.err.println("Error deleting folder: " + e.getMessage());
+            return false; // Folder deletion failed
         }
     }
 
-    public void searchFolder(String folderName) {
+    public boolean searchFolder(String folderName) {
         String sql = "SELECT * FROM folders WHERE name = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, folderName);
             ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                System.out.println("Folder '" + folderName + "' found.");
-            } else {
-                System.out.println("Folder not found.");
-            }
+            return rs.next(); // Return true if the folder exists
         } catch (SQLException e) {
-            System.out.println("Error searching folder: " + e.getMessage());
+            System.err.println("Error searching folder: " + e.getMessage());
+            return false; // Folder search failed
         }
     }
 
@@ -83,34 +77,33 @@ public class TaskManager {
             if (rs.next()) {
                 currentFolder = new Folder(rs.getString("name"));
                 currentFolder.setId(rs.getInt("id"));
-                System.out.println("Folder '" + folderName + "' selected.");
-                return true;
+                return true; // Folder selected successfully
             } else {
-                System.out.println("Folder '" + folderName + "' not found.");
-                return false;
+                return false; // Folder not found
             }
         } catch (SQLException e) {
-            System.out.println("Error selecting folder: " + e.getMessage());
-            return false;
+            System.err.println("Error selecting folder: " + e.getMessage());
+            return false; // Folder selection failed
         }
     }
 
-    public void viewFolders() {
+    public List<String> getFolders() {
+        List<String> folders = new ArrayList<>();
         String sql = "SELECT * FROM folders";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
-            System.out.println("Available folders:");
             while (rs.next()) {
-                System.out.println(rs.getString("name"));
+                folders.add(rs.getString("name"));
             }
         } catch (SQLException e) {
-            System.out.println("Error viewing folders: " + e.getMessage());
+            System.err.println("Error retrieving folders: " + e.getMessage());
         }
+        return folders; // Return list of folder names
     }
 
     // Task-related methods
-    public void addTaskToCurrentFolder(String taskName, String category, String priority) {
+    public boolean addTaskToCurrentFolder(String taskName, String category, String priority) {
         if (currentFolder != null) {
             String sql = "INSERT INTO tasks(name, category, priority, folder_id) VALUES(?, ?, ?, ?)";
             try (Connection conn = DatabaseConnection.getConnection();
@@ -120,41 +113,41 @@ public class TaskManager {
                 pstmt.setString(3, priority);
                 pstmt.setInt(4, currentFolder.getId());
                 pstmt.executeUpdate();
-                System.out.println("Task '" + taskName + "' added to folder '" + currentFolder.getName() + "'.");
+                return true; // Task added successfully
             } catch (SQLException e) {
-                System.out.println("Error adding task: " + e.getMessage());
+                System.err.println("Error adding task: " + e.getMessage());
+                return false; // Task addition failed
             }
         } else {
-            System.out.println("No folder selected.");
+            return false; // No folder selected
         }
     }
 
-    public void viewCurrentFolderTasks() {
-        if (currentFolder == null) {
-            System.out.println("No folder selected.");
-            return;
-        }
-
-        String sql = "SELECT * FROM tasks WHERE folder_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, currentFolder.getId());
-            ResultSet rs = pstmt.executeQuery();
-            System.out.println("Tasks in folder '" + currentFolder.getName() + "':");
-            System.out.println("-----------------------------");
-            while (rs.next()) {
-                System.out.println("Task Name: " + rs.getString("name"));
-                System.out.println("Category: " + rs.getString("category"));
-                System.out.println("Priority: " + rs.getString("priority"));
-                System.out.println("Completed: " + rs.getBoolean("completed"));
-                System.out.println("-----------------------------");
+    public List<Task> getTasksInCurrentFolder() {
+        List<Task> tasks = new ArrayList<>();
+        if (currentFolder != null) {
+            String sql = "SELECT * FROM tasks WHERE folder_id = ?";
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, currentFolder.getId());
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    Task task = new Task(
+                            rs.getString("name"),
+                            rs.getString("category"),
+                            rs.getString("priority")
+                    );
+                    task.setCompleted(rs.getBoolean("completed"));
+                    tasks.add(task);
+                }
+            } catch (SQLException e) {
+                System.err.println("Error retrieving tasks: " + e.getMessage());
             }
-        } catch (SQLException e) {
-            System.out.println("Error viewing tasks: " + e.getMessage());
         }
+        return tasks; // Return list of tasks in the current folder
     }
 
-    public void markTaskAsComplete(String taskName) {
+    public boolean markTaskAsComplete(String taskName) {
         if (currentFolder != null) {
             String sql = "UPDATE tasks SET completed = TRUE WHERE name = ? AND folder_id = ?";
             try (Connection conn = DatabaseConnection.getConnection();
@@ -162,20 +155,17 @@ public class TaskManager {
                 pstmt.setString(1, taskName);
                 pstmt.setInt(2, currentFolder.getId());
                 int rowsUpdated = pstmt.executeUpdate();
-                if (rowsUpdated > 0) {
-                    System.out.println("Task '" + taskName + "' marked as complete.");
-                } else {
-                    System.out.println("Task '" + taskName + "' not found.");
-                }
+                return rowsUpdated > 0; // Return true if the task was marked as complete
             } catch (SQLException e) {
-                System.out.println("Error marking task as complete: " + e.getMessage());
+                System.err.println("Error marking task as complete: " + e.getMessage());
+                return false; // Task update failed
             }
         } else {
-            System.out.println("No folder selected.");
+            return false; // No folder selected
         }
     }
 
-    public void markTaskAsIncomplete(String taskName) {
+    public boolean markTaskAsIncomplete(String taskName) {
         if (currentFolder != null) {
             String sql = "UPDATE tasks SET completed = FALSE WHERE name = ? AND folder_id = ?";
             try (Connection conn = DatabaseConnection.getConnection();
@@ -183,20 +173,17 @@ public class TaskManager {
                 pstmt.setString(1, taskName);
                 pstmt.setInt(2, currentFolder.getId());
                 int rowsUpdated = pstmt.executeUpdate();
-                if (rowsUpdated > 0) {
-                    System.out.println("Task '" + taskName + "' marked as incomplete.");
-                } else {
-                    System.out.println("Task '" + taskName + "' not found.");
-                }
+                return rowsUpdated > 0; // Return true if the task was marked as incomplete
             } catch (SQLException e) {
-                System.out.println("Error marking task as incomplete: " + e.getMessage());
+                System.err.println("Error marking task as incomplete: " + e.getMessage());
+                return false; // Task update failed
             }
         } else {
-            System.out.println("No folder selected.");
+            return false; // No folder selected
         }
     }
 
-    public void editTask(String taskName, int fieldChoice, String newValue) {
+    public boolean editTask(String taskName, int fieldChoice, String newValue) {
         if (currentFolder != null) {
             String sql;
             switch (fieldChoice) {
@@ -210,8 +197,7 @@ public class TaskManager {
                     sql = "UPDATE tasks SET priority = ? WHERE name = ? AND folder_id = ?";
                     break;
                 default:
-                    System.out.println("Invalid field choice. No changes made.");
-                    return;
+                    return false; // Invalid field choice
             }
 
             try (Connection conn = DatabaseConnection.getConnection();
@@ -220,20 +206,17 @@ public class TaskManager {
                 pstmt.setString(2, taskName);
                 pstmt.setInt(3, currentFolder.getId());
                 int rowsUpdated = pstmt.executeUpdate();
-                if (rowsUpdated > 0) {
-                    System.out.println("Task '" + taskName + "' updated.");
-                } else {
-                    System.out.println("Task '" + taskName + "' not found.");
-                }
+                return rowsUpdated > 0; // Return true if the task was updated
             } catch (SQLException e) {
-                System.out.println("Error editing task: " + e.getMessage());
+                System.err.println("Error editing task: " + e.getMessage());
+                return false; // Task update failed
             }
         } else {
-            System.out.println("No folder selected.");
+            return false; // No folder selected
         }
     }
 
-    public void searchTask(String taskName) {
+    public Task searchTask(String taskName) {
         if (currentFolder != null) {
             String sql = "SELECT * FROM tasks WHERE name = ? AND folder_id = ?";
             try (Connection conn = DatabaseConnection.getConnection();
@@ -242,49 +225,47 @@ public class TaskManager {
                 pstmt.setInt(2, currentFolder.getId());
                 ResultSet rs = pstmt.executeQuery();
                 if (rs.next()) {
-                    System.out.println("Task found:");
-                    System.out.println("Task Name: " + rs.getString("name"));
-                    System.out.println("Category: " + rs.getString("category"));
-                    System.out.println("Priority: " + rs.getString("priority"));
-                    System.out.println("Completed: " + rs.getBoolean("completed"));
-                } else {
-                    System.out.println("Task '" + taskName + "' not found.");
+                    Task task = new Task(
+                            rs.getString("name"),
+                            rs.getString("category"),
+                            rs.getString("priority")
+                    );
+                    task.setCompleted(rs.getBoolean("completed"));
+                    return task; // Return the found task
                 }
             } catch (SQLException e) {
-                System.out.println("Error searching task: " + e.getMessage());
+                System.err.println("Error searching task: " + e.getMessage());
             }
-        } else {
-            System.out.println("No folder selected.");
         }
+        return null; // Task not found or no folder selected
     }
 
-    public void filterTasksByCompletion(boolean isComplete) {
-        if (currentFolder == null) {
-            System.out.println("No folder selected.");
-            return;
-        }
-
-        String sql = "SELECT * FROM tasks WHERE folder_id = ? AND completed = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, currentFolder.getId());
-            pstmt.setBoolean(2, isComplete);
-            ResultSet rs = pstmt.executeQuery();
-            System.out.println("Tasks that are " + (isComplete ? "complete:" : "incomplete:"));
-            System.out.println("-----------------------------");
-            while (rs.next()) {
-                System.out.println("Task Name: " + rs.getString("name"));
-                System.out.println("Category: " + rs.getString("category"));
-                System.out.println("Priority: " + rs.getString("priority"));
-                System.out.println("Completed: " + rs.getBoolean("completed"));
-                System.out.println("-----------------------------");
+    public List<Task> filterTasksByCompletion(boolean isComplete) {
+        List<Task> tasks = new ArrayList<>();
+        if (currentFolder != null) {
+            String sql = "SELECT * FROM tasks WHERE folder_id = ? AND completed = ?";
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, currentFolder.getId());
+                pstmt.setBoolean(2, isComplete);
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    Task task = new Task(
+                            rs.getString("name"),
+                            rs.getString("category"),
+                            rs.getString("priority")
+                    );
+                    task.setCompleted(rs.getBoolean("completed"));
+                    tasks.add(task);
+                }
+            } catch (SQLException e) {
+                System.err.println("Error filtering tasks: " + e.getMessage());
             }
-        } catch (SQLException e) {
-            System.out.println("Error filtering tasks: " + e.getMessage());
         }
+        return tasks; // Return list of filtered tasks
     }
 
-    public void deleteTask(String taskName) {
+    public boolean deleteTask(String taskName) {
         if (currentFolder != null) {
             String sql = "DELETE FROM tasks WHERE name = ? AND folder_id = ?";
             try (Connection conn = DatabaseConnection.getConnection();
@@ -292,16 +273,13 @@ public class TaskManager {
                 pstmt.setString(1, taskName);
                 pstmt.setInt(2, currentFolder.getId());
                 int rowsDeleted = pstmt.executeUpdate();
-                if (rowsDeleted > 0) {
-                    System.out.println("Task '" + taskName + "' deleted.");
-                } else {
-                    System.out.println("Task '" + taskName + "' not found.");
-                }
+                return rowsDeleted > 0; // Return true if the task was deleted
             } catch (SQLException e) {
-                System.out.println("Error deleting task: " + e.getMessage());
+                System.err.println("Error deleting task: " + e.getMessage());
+                return false; // Task deletion failed
             }
         } else {
-            System.out.println("No folder selected.");
+            return false; // No folder selected
         }
     }
 }
