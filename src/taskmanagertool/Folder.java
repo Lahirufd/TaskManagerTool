@@ -3,11 +3,9 @@ package taskmanagertool;
 public class Folder {
     private int id;
     private String name;
-    private TaskLinkedList taskList;
 
     public Folder(String name) {
         this.name = name;
-        this.taskList = new TaskLinkedList();
     }
 
     public int getId() {
@@ -24,10 +22,6 @@ public class Folder {
     
     public void setName(String name) {
         this.name = name;
-    }
-
-    public TaskLinkedList getTaskList() {
-        return taskList;
     }
 
     @Override
